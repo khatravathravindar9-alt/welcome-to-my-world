@@ -1,161 +1,219 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cyber Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Security System</title>
 
 <style>
 *{box-sizing:border-box}
 body{
-margin:0;background:#020605;color:#00ff88;
-font-family:monospace;padding:15px;
+ background:#020607;
+ color:#00ff99;
+ font-family:monospace;
+ text-align:center;
+ padding:15px;
 }
-header{
-text-align:center;padding:20px;
-border:1px solid #00ff88;
-box-shadow:0 0 15px #00ff8855;
-}
-h1{text-shadow:0 0 12px #00ff88}
+h1{ text-shadow:0 0 15px #00ff99; }
 .card{
-background:#06140d;
-border:1px solid #00ff8866;
-padding:18px;margin-top:15px;
-border-radius:10px;
-}
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-}
-.value{font-size:25px;color:#00ff88}
-.bar{
-height:10px;background:#10251a;
-margin-top:10px;
-}
-.fill{
-height:100%;width:0%;
-background:#00ff88;
-transition:width 1s;
+ max-width:480px;
+ margin:20px auto;
+ padding:20px;
+ background:#071411;
+ border:1px solid #00ff99;
+ border-radius:12px;
+ box-shadow:0 0 15px #00ff9944;
 }
 button{
-background:#00ff88;
-border:0;padding:14px;
-font-weight:bold;width:100%;
-font-size:16px;
-margin-top:15px;
+ background:#00ff99;
+ color:#00120b;
+ border:0;
+ padding:13px 25px;
+ margin:8px;
+ border-radius:5px;
+ font-weight:bold;
+ cursor:pointer;
+}
+.hidden{display:none}
+.bar{
+ height:13px;
+ background:#183029;
+ border-radius:20px;
+ overflow:hidden;
+}
+.fill{
+ height:100%;
+ width:0%;
+ background:#00ff99;
+ transition:.4s;
+}
+.item{
+ border:1px solid #087c55;
+ padding:12px;
+ margin:10px 0;
+ border-radius:6px;
 }
 #terminal{
-height:180px;overflow:auto;
-color:#00ff88;
-font-size:13px;
-line-height:1.8;
+ height:190px;
+ overflow:auto;
+ text-align:left;
+ font-size:12px;
+ line-height:1.7;
 }
-#status{color:white}
+.warning{
+ color:red;
+ font-size:27px;
+ animation:blink .7s infinite;
+}
+@keyframes blink{
+ 50%{opacity:.2}
+}
+.redbox{
+ border:2px solid red;
+ box-shadow:0 0 25px red;
+}
 </style>
 </head>
 
 <body>
 
-<header>
-<h1>☠ CYBER DASHBOARD ☠</h1>
-<p>ADVANCED SECURITY SIMULATOR</p>
-<p>● SYSTEM ONLINE</p>
-</header>
+<h1>⚡ ADVANCED SECURITY SYSTEM</h1>
+<p>DEVICE DIAGNOSTIC INTERFACE</p>
 
-<div class="grid">
+<div class="card" id="location">
+<h2>📍 LOCATION PERMISSION</h2>
+<p>Continue with location permission?</p>
+<button onclick="locationStep()">ALLOW</button>
+<button onclick="locationStep()">DENY</button>
+</div>
 
-<div class="card">
-CPU DEMO
-<div class="value" id="cpu">0%</div>
+<div class="card hidden" id="camera">
+<h2>📷 CAMERA PERMISSION</h2>
+<p>Continue with camera permission?</p>
+<button onclick="cameraStep()">ALLOW</button>
+<button onclick="cameraStep()">DENY</button>
+</div>
+
+<div class="card hidden" id="dashboard">
+
+<h2>🖥️ SYSTEM ANALYSIS</h2>
+
+<div class="item">
+CPU DEMO: <span id="cpu">0</span>%
 <div class="bar"><div class="fill" id="cpuBar"></div></div>
 </div>
 
-<div class="card">
-RAM DEMO
-<div class="value" id="ram">0%</div>
+<div class="item">
+RAM DEMO: <span id="ram">0</span>%
 <div class="bar"><div class="fill" id="ramBar"></div></div>
 </div>
 
+<h3>APPLICATION SCAN</h3>
+<div class="item">WhatsApp: <span id="wa">WAITING</span></div>
+<div class="item">Instagram: <span id="ig">WAITING</span></div>
+<div class="item">Calls: <span id="calls">WAITING</span></div>
+<div class="item">Device: <span id="device">WAITING</span></div>
+
+<h3>💻 LIVE TERMINAL</h3>
+<div class="card" id="terminal"></div>
+
+<h3 id="status">INITIALIZING...</h3>
 </div>
 
-<div class="card">
-<h3>⌨ TERMINAL</h3>
-<div id="terminal">
-> Dashboard initialized...<br>
-> Waiting for command...
-</div>
-<button onclick="start()">START ANALYSIS</button>
-</div>
-
-<div class="card">
-<h3>🔐 SECURITY STATUS</h3>
-<p id="status">STATUS: IDLE</p>
-<p>Network Demo: ONLINE</p>
-<p>Firewall Demo: ACTIVE</p>
-<p>Analysis: SIMULATION ONLY</p>
+<div class="card hidden redbox" id="finish">
+<h1 class="warning">⚠ WARNING ⚠</h1>
+<h1 class="warning">YOUR DEVICE IS HACKED!</h1>
+<h2 style="color:red">SECURITY ALERT</h2>
+<p>SYSTEM STATUS: COMPROMISED</p>
+<p>ANALYSIS: COMPLETED</p>
 </div>
 
 <script>
 
-const terminal=document.getElementById("terminal");
-
-let running=false;
-
-function log(text){
-terminal.innerHTML+="<br>> "+text;
-terminal.scrollTop=terminal.scrollHeight;
+function locationStep(){
+ document.getElementById("location").classList.add("hidden");
+ document.getElementById("camera").classList.remove("hidden");
 }
 
-function start(){
-
-if(running)return;
-running=true;
-
-let count=0;
+function cameraStep(){
+ document.getElementById("camera").classList.add("hidden");
+ document.getElementById("dashboard").classList.remove("hidden");
+ startAnalysis();
+}
 
 const messages=[
-"Initializing dashboard...",
-"Loading demo modules...",
-"Checking simulated CPU...",
-"Checking simulated memory...",
-"Running sample security checks...",
-"Preparing demo report...",
-"Analysis completed successfully."
+"Initializing diagnostic interface...",
+"Loading system modules...",
+"Checking simulated CPU status...",
+"Checking simulated RAM status...",
+"WhatsApp demo scan started...",
+"WhatsApp simulation completed...",
+"Instagram demo scan started...",
+"Instagram simulation completed...",
+"Call records demo simulation...",
+"Device security simulation...",
+"Checking security indicators...",
+"Preparing final report...",
+"Analysis completed."
 ];
 
-document.getElementById("status").innerText="STATUS: RUNNING";
+let index=0;
 
-const timer=setInterval(()=>{
+function terminalLog(){
+ if(index>=messages.length){
+  document.getElementById("status").innerText="ANALYSIS COMPLETED";
+  setTimeout(()=>{
+   document.getElementById("dashboard").classList.add("hidden");
+   document.getElementById("finish").classList.remove("hidden");
+  },2500);
+  return;
+ }
 
-count++;
+ let terminal=document.getElementById("terminal");
+ terminal.innerHTML+="<div>> "+messages[index]+"</div>";
+ terminal.scrollTop=terminal.scrollHeight;
 
-let cpu=Math.floor(Math.random()*80)+10;
-let ram=Math.floor(Math.random()*70)+20;
-
-document.getElementById("cpu").innerText=cpu+"%";
-document.getElementById("ram").innerText=ram+"%";
-
-document.getElementById("cpuBar").style.width=cpu+"%";
-document.getElementById("ramBar").style.width=ram+"%";
-
-if(count<=messages.length){
-log(messages[count-1]);
+ index++;
+ setTimeout(terminalLog,1300);
 }
 
-if(count>=messages.length){
+function startAnalysis(){
 
-clearInterval(timer);
+ let count=0;
 
-document.getElementById("status").innerText=
-"STATUS: ANALYSIS COMPLETE";
+ let timer=setInterval(()=>{
+  let cpu=Math.floor(Math.random()*90)+5;
+  let ram=Math.floor(Math.random()*80)+10;
 
-log("Demo report ready.");
+  document.getElementById("cpu").innerText=cpu;
+  document.getElementById("ram").innerText=ram;
 
-running=false;
-}
+  document.getElementById("cpuBar").style.width=cpu+"%";
+  document.getElementById("ramBar").style.width=ram+"%";
 
-},1200);
+  count++;
+  if(count>=35)clearInterval(timer);
 
+ },500);
+
+ const scans=[
+ ["wa","WHATSAPP"],
+ ["ig","INSTAGRAM"],
+ ["calls","CALL RECORDS"],
+ ["device","DEVICE"]
+ ];
+
+ scans.forEach((item,i)=>{
+  setTimeout(()=>{
+   document.getElementById(item[0]).innerText="SCANNING...";
+  },i*3500+1000);
+
+  setTimeout(()=>{
+   document.getElementById(item[0]).innerText="SIMULATION COMPLETE";
+  },i*3500+2800);
+ });
+
+ terminalLog();
 }
 
 </script>
