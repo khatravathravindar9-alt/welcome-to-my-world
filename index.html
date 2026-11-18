@@ -2,203 +2,106 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hacker Simulator</title>
-
+<title>Security Terminal</title>
 <style>
-* { box-sizing:border-box; }
-
-body {
-  margin:0;
-  background:#020805;
-  color:#00ff66;
-  font-family:monospace;
-  text-align:center;
-  overflow-x:hidden;
-}
-
-canvas {
-  position:fixed;
-  top:0;
-  left:0;
-  z-index:-1;
-}
-
-.container {
-  margin:70px 15px;
-  padding:25px;
-  border:1px solid #00ff66;
-  border-radius:15px;
-  background:rgba(0,15,5,.92);
-  box-shadow:0 0 25px #00ff6655;
-}
-
-h1 {
-  text-shadow:0 0 15px #00ff66;
-}
-
-button {
-  background:#00ff66;
-  color:black;
-  padding:15px 30px;
-  border:0;
-  border-radius:8px;
-  font-weight:bold;
-  font-size:17px;
-}
-
-button:active { transform:scale(.95); }
-
-.bar {
-  width:100%;
-  height:15px;
-  border:1px solid #00ff66;
-  margin-top:20px;
-  border-radius:20px;
-  overflow:hidden;
-}
-
-#progress {
-  width:0%;
-  height:100%;
-  background:#00ff66;
-  transition:width .2s;
-}
-
-#result {
-  color:white;
-  margin-top:25px;
-  line-height:1.8;
-}
-
-#logs {
-  color:#00ff66;
-  font-size:12px;
-  margin-top:20px;
-  text-align:left;
-}
+*{box-sizing:border-box}
+body{margin:0;background:#020805;color:#00ff66;font-family:monospace;text-align:center}
+canvas{position:fixed;top:0;left:0;z-index:-1}
+.box{margin:60px 15px;padding:25px;border:1px solid #00ff66;border-radius:15px;background:#001008;box-shadow:0 0 20px #00ff6655}
+h1{text-shadow:0 0 12px #00ff66}
+button{background:#00ff66;color:black;padding:15px 30px;border:0;border-radius:8px;font-size:17px;font-weight:bold}
+.bar{height:15px;border:1px solid #00ff66;margin-top:20px;border-radius:20px;overflow:hidden}
+#progress{width:0;height:100%;background:#00ff66}
+#logs{text-align:left;font-size:12px;margin-top:20px;line-height:2}
+#result{color:white;margin-top:25px;line-height:2}
 </style>
 </head>
-
 <body>
 
 <canvas id="matrix"></canvas>
 
-<div class="container">
+<div class="box">
+<h1>☠ SECURITY TERMINAL ☠</h1>
+<p>ADVANCED SYSTEM ANALYSIS</p>
+<p>STATUS: ONLINE</p>
 
-<h1>☠ HACKER TERMINAL ☠</h1>
+<button id="scanBtn" onclick="startScan()">START SCAN</button>
 
-<p>ADVANCED SECURITY SCANNER</p>
-
-<p>System Status: <b>ONLINE</b></p>
-
-<button onclick="startScan()">START SCAN</button>
-
-<div class="bar">
-<div id="progress"></div>
-</div>
-
+<div class="bar"><div id="progress"></div></div>
 <h2 id="percent">0%</h2>
-
 <div id="logs"></div>
-
 <div id="result"></div>
-
 </div>
 
 <script>
+const canvas=document.getElementById("matrix");
+const ctx=canvas.getContext("2d");
+canvas.width=innerWidth;
+canvas.height=innerHeight;
 
-// Matrix animation
-const canvas = document.getElementById("matrix");
-const ctx = canvas.getContext("2d");
+const chars="01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const size=14;
+const drops=Array(Math.floor(canvas.width/size)).fill(1);
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-const letters = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const fontSize = 14;
-const columns = Math.floor(canvas.width/fontSize);
-const drops = Array(columns).fill(1);
-
-function matrix() {
-ctx.fillStyle = "rgba(0,0,0,0.08)";
+function matrix(){
+ctx.fillStyle="rgba(0,0,0,.08)";
 ctx.fillRect(0,0,canvas.width,canvas.height);
-ctx.fillStyle = "#00ff66";
-ctx.font = fontSize+"px monospace";
-
+ctx.fillStyle="#00ff66";
+ctx.font=size+"px monospace";
 drops.forEach((y,i)=>{
-const text = letters[Math.floor(Math.random()*letters.length)];
-ctx.fillText(text,i*fontSize,y*fontSize);
-
-if(y*fontSize>canvas.height && Math.random()>.975)
-drops[i]=0;
-
+ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*size,y*size);
+if(y*size>canvas.height&&Math.random()>.975)drops[i]=0;
 drops[i]++;
 });
 }
-
 setInterval(matrix,45);
 
-// Scan simulation
-function startScan() {
+function startScan(){
+const btn=document.getElementById("scanBtn");
+const bar=document.getElementById("progress");
+const percent=document.getElementById("percent");
+const logs=document.getElementById("logs");
+const result=document.getElementById("result");
 
-let progress = 0;
+let p=0;
+let m=0;
 
-const button = document.querySelector("button");
-const bar = document.getElementById("progress");
-const percent = document.getElementById("percent");
-const logs = document.getElementById("logs");
-const result = document.getElementById("result");
-
-button.disabled = true;
-button.innerText = "SCANNING...";
-
-logs.innerHTML = "";
-result.innerHTML = "";
-bar.style.width = "0%";
-
-const messages = [
-"Initializing demo scanner...",
+const messages=[
+"Initializing analysis...",
 "Checking demo security...",
-"Analyzing sample files...",
+"Analyzing sample data...",
 "Running simulated firewall test...",
 "Checking demo network...",
-"Finalizing scan..."
+"Finalizing analysis..."
 ];
 
-let message = 0;
+btn.disabled=true;
+btn.innerText="ANALYZING...";
+logs.innerHTML="";
+result.innerHTML="";
 
-let timer = setInterval(()=>{
+const timer=setInterval(()=>{
+p++;
+bar.style.width=p+"%";
+percent.innerText=p+"%";
 
-progress += 2;
-
-bar.style.width = progress+"%";
-percent.innerText = progress+"%";
-
-if(progress % 16 === 0 && message < messages.length) {
-logs.innerHTML += "> "+messages[message]+"<br>";
-message++;
+if(p%16===0&&m<messages.length){
+logs.innerHTML+="> "+messages[m]+"<br>";
+m++;
 }
 
-if(progress >= 100) {
-
+if(p>=100){
 clearInterval(timer);
-
-result.innerHTML =
-"😂 JUST A PRANK!<br><br>"+
-"YOUR DEVICE IS SAFE!<br>"+
-"THIS WAS ONLY A SIMULATION.<br><br>"+
-"☠ HACKER MODE COMPLETE ☠";
-
-button.disabled = false;
-button.innerText = "SCAN AGAIN";
-
+result.innerHTML=
+"☠ ANALYSIS COMPLETE ☠<br><br>"+
+"System Status: ONLINE<br>"+
+"Demo Checks: COMPLETED<br>"+
+"Report Status: READY";
+btn.disabled=false;
+btn.innerText="RUN AGAIN";
 }
-
 },100);
-
 }
-
 </script>
-
 </body>
 </html>
