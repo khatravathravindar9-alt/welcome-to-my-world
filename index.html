@@ -1,1 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Security Prank</title>
+<style>
+body {
+  background: #080d16;
+  color: #00ff88;
+  font-family: Arial;
+  text-align: center;
+  padding: 40px 15px;
+}
+.box {
+  border: 2px solid #00ff88;
+  border-radius: 15px;
+  padding: 25px;
+  margin-top: 60px;
+}
+button {
+  background: #00ff88;
+  color: black;
+  border: none;
+  padding: 15px 25px;
+  border-radius: 8px;
+  font-size: 18px;
+}
+#result {
+  color: white;
+  margin-top: 25px;
+}
+</style>
+</head>
+<body>
 
+<div class="box">
+<h1>🛡️ SECURITY SCANNER</h1>
+<p>Welcome to Security Prank Demo</p>
+
+<button onclick="scan()">START SCAN</button>
+
+<h3 id="result"></h3>
+</div>
+
+<script>
+function scan() {
+  let result = document.getElementById("result");
+  result.innerHTML = "Scanning... Please wait";
+
+  setTimeout(() => {
+    result.innerHTML =
+    "😂 JUST A PRANK!<br><br>Your device is safe.<br>This was only a demo!";
+  }, 3000);
+}
+</script>
+
+</body>
+</html>
