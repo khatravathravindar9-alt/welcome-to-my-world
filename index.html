@@ -3,149 +3,440 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Advanced Security System</title>
+<title>Security Terminal</title>
 
 <style>
-*{box-sizing:border-box}
-body{
- background:#020607;color:#00ff99;
- font-family:monospace;text-align:center;padding:15px;
+* {
+    box-sizing: border-box;
 }
-h1{text-shadow:0 0 15px #00ff99}
-.card{
- max-width:480px;margin:20px auto;padding:20px;
- background:#071411;border:1px solid #00ff99;
- border-radius:12px;box-shadow:0 0 15px #00ff9944;
+
+body {
+    margin: 0;
+    background: #020806;
+    color: #00ff66;
+    font-family: monospace;
+    overflow-x: hidden;
 }
-button{
- background:#00ff99;color:#00120b;border:0;
- padding:13px 25px;margin:8px;border-radius:5px;
- font-weight:bold;cursor:pointer;
+
+canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
 }
-.hidden{display:none}
-.bar{height:13px;background:#183029;border-radius:20px;overflow:hidden}
-.fill{height:100%;width:0%;background:#00ff99;transition:.4s}
-.item{border:1px solid #087c55;padding:12px;margin:10px 0;border-radius:6px}
-#terminal{height:160px;overflow:auto;text-align:left;font-size:12px;line-height:1.7}
-.warning{color:red;font-size:27px;animation:blink .7s infinite}
-@keyframes blink{50%{opacity:.2}}
-.redbox{border:2px solid red;box-shadow:0 0 25px red}
+
+.container {
+    max-width: 650px;
+    margin: 30px auto;
+    padding: 20px;
+    border: 1px solid #00ff66;
+    background: rgba(0,10,5,0.94);
+    box-shadow: 0 0 20px #00ff66;
+    border-radius: 10px;
+}
+
+h1 {
+    text-align: center;
+    text-shadow: 0 0 15px #00ff66;
+}
+
+.subtitle {
+    text-align: center;
+    color: #00cc55;
+}
+
+.status {
+    border: 1px solid #00ff66;
+    padding: 12px;
+    margin: 15px 0;
+    text-align: center;
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    background: #00ff66;
+    color: black;
+    font-weight: bold;
+    font-size: 17px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: 0.5;
+}
+
+.progress-box {
+    margin-top: 20px;
+    border: 1px solid #00ff66;
+    height: 22px;
+}
+
+.progress {
+    height: 100%;
+    width: 0%;
+    background: #00ff66;
+    box-shadow: 0 0 15px #00ff66;
+    transition: width 0.1s;
+}
+
+#percent {
+    text-align: center;
+    margin-top: 8px;
+}
+
+.terminal {
+    background: black;
+    border: 1px solid #00ff66;
+    padding: 12px;
+    height: 180px;
+    overflow-y: auto;
+    margin-top: 20px;
+    font-size: 13px;
+}
+
+.metrics {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.metric {
+    border: 1px solid #00ff66;
+    padding: 15px;
+    width: 50%;
+    text-align: center;
+}
+
+.metric span {
+    font-size: 22px;
+}
+
+#result {
+    display: none;
+    text-align: center;
+    margin-top: 25px;
+    padding: 20px;
+    border: 2px solid #00ff66;
+}
+
+.alert {
+    animation: redFlash 0.3s infinite;
+}
+
+@keyframes redFlash {
+    0%,100% {
+        background: #020806;
+    }
+    50% {
+        background: #650000;
+    }
+}
+
+#alertText {
+    display: none;
+    color: red;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 0 0 15px red;
+}
+
 </style>
 </head>
 
 <body>
 
-<h1>⚡ ADVANCED SECURITY SYSTEM</h1>
-<p>DEVICE DIAGNOSTIC INTERFACE</p>
+<canvas id="matrix"></canvas>
 
-<div class="card" id="location">
-<h2>📍 LOCATION PERMISSION</h2>
-<p>Continue with location permission?</p>
-<button onclick="locationStep()">ALLOW</button>
-<button onclick="locationStep()">DENY</button>
+<div class="container">
+
+<h1>☠ SECURITY TERMINAL ☠</h1>
+
+<p class="subtitle">ADVANCED SYSTEM ANALYSIS</p>
+
+<div class="status" id="status">
+STATUS: ONLINE
 </div>
 
-<div class="card hidden" id="camera">
-<h2>📷 CAMERA PERMISSION</h2>
-<p>Continue with camera permission?</p>
-<button onclick="cameraStep()">ALLOW</button>
-<button onclick="cameraStep()">DENY</button>
+<p id="alertText">⚠ CRITICAL SECURITY ALERT ⚠</p>
+
+<button id="startBtn" onclick="startScan()">
+START SCAN
+</button>
+
+<div class="progress-box">
+<div class="progress" id="progress"></div>
 </div>
 
-<div class="card hidden" id="dashboard">
-<h2>🖥️ SYSTEM ANALYSIS</h2>
+<div id="percent">0%</div>
 
-<div class="item">
-CPU DEMO: <span id="cpu">0</span>%
-<div class="bar"><div class="fill" id="cpuBar"></div></div>
+<div class="metrics">
+
+<div class="metric">
+CPU USAGE<br>
+<span id="cpu">12%</span>
 </div>
 
-<div class="item">
-RAM DEMO: <span id="ram">0</span>%
-<div class="bar"><div class="fill" id="ramBar"></div></div>
+<div class="metric">
+RAM USAGE<br>
+<span id="ram">35%</span>
 </div>
 
-<h3>APPLICATION SCAN</h3>
-<div class="item">WhatsApp: <span id="wa">WAITING</span></div>
-<div class="item">Instagram: <span id="ig">WAITING</span></div>
-<div class="item">Calls: <span id="calls">WAITING</span></div>
-<div class="item">Device: <span id="device">WAITING</span></div>
-
-<h3>💻 LIVE TERMINAL</h3>
-<div class="card" id="terminal"></div>
-<h3 id="status">INITIALIZING...</h3>
 </div>
 
-<div class="card hidden redbox" id="finish">
-<h1 class="warning">⚠ SECURITY ALERT ⚠</h1>
-<h1 class="warning">YOUR DEVICE IS HACKED!</h1>
-<h2 style="color:red">SYSTEM COMPROMISED</h2>
-<p>SECURITY ANALYSIS COMPLETED</p>
+<div class="terminal" id="terminal">
+> Security Terminal Initialized...<br>
+> System Status: ONLINE<br>
+> Waiting for scan command...
+</div>
+
+<div id="result">
+
+<h2>☠ ANALYSIS COMPLETE ☠</h2>
+
+<p>System Status: ONLINE</p>
+<p>Demo Checks: COMPLETED</p>
+<p>Report Status: READY</p>
+
+<h3 style="color:#00ff66">
+SYSTEM SECURE
+</h3>
+
+</div>
+
 </div>
 
 <script>
 
-function locationStep(){
- document.getElementById("location").classList.add("hidden");
- document.getElementById("camera").classList.remove("hidden");
+// MATRIX BACKGROUND
+
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const letters = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const fontSize = 14;
+
+let drops = [];
+
+for(let x = 0; x < canvas.width/fontSize; x++) {
+    drops[x] = 1;
 }
 
-function cameraStep(){
- document.getElementById("camera").classList.add("hidden");
- document.getElementById("dashboard").classList.remove("hidden");
- startAnalysis();
+function drawMatrix() {
+
+    ctx.fillStyle = "rgba(0,0,0,0.08)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle = "#00ff66";
+    ctx.font = fontSize + "px monospace";
+
+    for(let i=0; i<drops.length; i++) {
+
+        let text = letters.charAt(
+            Math.floor(Math.random()*letters.length)
+        );
+
+        ctx.fillText(text,i*fontSize,drops[i]*fontSize);
+
+        if(drops[i]*fontSize > canvas.height &&
+           Math.random() > 0.975) {
+            drops[i] = 0;
+        }
+
+        drops[i]++;
+    }
 }
 
-function startAnalysis(){
+setInterval(drawMatrix,35);
 
- let count=0;
 
- let timer=setInterval(()=>{
-  let cpu=Math.floor(Math.random()*90)+5;
-  let ram=Math.floor(Math.random()*80)+10;
+// CPU RAM ANIMATION
 
-  document.getElementById("cpu").innerText=cpu;
-  document.getElementById("ram").innerText=ram;
-  document.getElementById("cpuBar").style.width=cpu+"%";
-  document.getElementById("ramBar").style.width=ram+"%";
+setInterval(() => {
 
-  count++;
-  if(count>=10)clearInterval(timer);
- },200);
+    document.getElementById("cpu").innerText =
+        Math.floor(Math.random()*70+10)+"%";
 
- const scans=[
- ["wa","SCANNING..."],
- ["ig","SCANNING..."],
- ["calls","SCANNING..."],
- ["device","ANALYZING..."]
- ];
+    document.getElementById("ram").innerText =
+        Math.floor(Math.random()*60+25)+"%";
 
- scans.forEach((item,i)=>{
-  setTimeout(()=>{
-   document.getElementById(item[0]).innerText=item[1];
-  },i*250);
- });
+},500);
 
- const terminal=document.getElementById("terminal");
 
- terminal.innerHTML=`
- <div>> Initializing diagnostic demo...</div>
- <div>> Loading simulated system modules...</div>
- <div>> WhatsApp scan simulation...</div>
- <div>> Instagram scan simulation...</div>
- <div>> Calls analysis simulation...</div>
- <div>> Device diagnostics...</div>
- <div>> Analysis completed...</div>
- `;
+// TERMINAL MESSAGES
 
- document.getElementById("status").innerText="ANALYSIS RUNNING...";
+const messages = [
+"> Initializing security protocols...",
+"> Checking system status...",
+"> Running simulated security checks...",
+"> Analyzing network status...",
+"> Checking firewall status...",
+"> Verifying security parameters...",
+"> Processing system report...",
+"> Analysis completed..."
+];
 
- setTimeout(()=>{
-  document.getElementById("dashboard").classList.add("hidden");
-  document.getElementById("finish").classList.remove("hidden");
- },2000);
+let audioCtx;
+
+function playSiren() {
+
+    try {
+
+        audioCtx = new (
+            window.AudioContext ||
+            window.webkitAudioContext
+        )();
+
+        const oscillator = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        oscillator.type = "sawtooth";
+        oscillator.frequency.value = 700;
+
+        gain.gain.value = 0.04;
+
+        oscillator.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        oscillator.start();
+
+        let high = true;
+
+        const siren = setInterval(() => {
+
+            oscillator.frequency.setValueAtTime(
+                high ? 950 : 650,
+                audioCtx.currentTime
+            );
+
+            high = !high;
+
+        },250);
+
+        setTimeout(() => {
+
+            clearInterval(siren);
+            oscillator.stop();
+            audioCtx.close();
+
+        },1800);
+
+    } catch(e) {
+        console.log("Audio unavailable");
+    }
 }
+
+
+// START SCAN
+
+function startScan() {
+
+    const btn = document.getElementById("startBtn");
+
+    btn.disabled = true;
+
+    document.getElementById("status").innerText =
+        "STATUS: SCANNING";
+
+    let progress = 0;
+
+    const terminal = document.getElementById("terminal");
+
+    let messageIndex = 0;
+
+    const scan = setInterval(() => {
+
+        progress += 5;
+
+        if(progress > 100) progress = 100;
+
+        document.getElementById("progress").style.width =
+            progress+"%";
+
+        document.getElementById("percent").innerText =
+            progress+"%";
+
+        if(messageIndex < messages.length) {
+
+            terminal.innerHTML +=
+                "<br>"+messages[messageIndex];
+
+            terminal.scrollTop = terminal.scrollHeight;
+
+            messageIndex++;
+
+        }
+
+        if(progress >= 100) {
+
+            clearInterval(scan);
+
+            showAlert();
+
+        }
+
+    },100);
+
+}
+
+
+// RED ALERT
+
+function showAlert() {
+
+    document.body.classList.add("alert");
+
+    document.getElementById("alertText").style.display =
+        "block";
+
+    document.getElementById("status").innerText =
+        "STATUS: CRITICAL ALERT";
+
+    playSiren();
+
+    setTimeout(() => {
+
+        document.body.classList.remove("alert");
+
+        document.getElementById("alertText").style.display =
+            "none";
+
+        document.getElementById("status").innerText =
+            "STATUS: ANALYSIS COMPLETE";
+
+        document.getElementById("result").style.display =
+            "block";
+
+        document.getElementById("terminal").innerHTML +=
+            "<br>> ANALYSIS COMPLETE";
+
+    },2000);
+
+}
+
+window.addEventListener("resize", () => {
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    drops = [];
+
+    for(let x = 0; x < canvas.width/fontSize; x++) {
+        drops[x] = 1;
+    }
+
+});
 
 </script>
+
 </body>
 </html>
