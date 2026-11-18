@@ -2,106 +2,163 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Security Terminal</title>
+<title>Cyber Dashboard</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#020805;color:#00ff66;font-family:monospace;text-align:center}
-canvas{position:fixed;top:0;left:0;z-index:-1}
-.box{margin:60px 15px;padding:25px;border:1px solid #00ff66;border-radius:15px;background:#001008;box-shadow:0 0 20px #00ff6655}
-h1{text-shadow:0 0 12px #00ff66}
-button{background:#00ff66;color:black;padding:15px 30px;border:0;border-radius:8px;font-size:17px;font-weight:bold}
-.bar{height:15px;border:1px solid #00ff66;margin-top:20px;border-radius:20px;overflow:hidden}
-#progress{width:0;height:100%;background:#00ff66}
-#logs{text-align:left;font-size:12px;margin-top:20px;line-height:2}
-#result{color:white;margin-top:25px;line-height:2}
+body{
+margin:0;background:#020605;color:#00ff88;
+font-family:monospace;padding:15px;
+}
+header{
+text-align:center;padding:20px;
+border:1px solid #00ff88;
+box-shadow:0 0 15px #00ff8855;
+}
+h1{text-shadow:0 0 12px #00ff88}
+.card{
+background:#06140d;
+border:1px solid #00ff8866;
+padding:18px;margin-top:15px;
+border-radius:10px;
+}
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+.value{font-size:25px;color:#00ff88}
+.bar{
+height:10px;background:#10251a;
+margin-top:10px;
+}
+.fill{
+height:100%;width:0%;
+background:#00ff88;
+transition:width 1s;
+}
+button{
+background:#00ff88;
+border:0;padding:14px;
+font-weight:bold;width:100%;
+font-size:16px;
+margin-top:15px;
+}
+#terminal{
+height:180px;overflow:auto;
+color:#00ff88;
+font-size:13px;
+line-height:1.8;
+}
+#status{color:white}
 </style>
 </head>
+
 <body>
 
-<canvas id="matrix"></canvas>
+<header>
+<h1>☠ CYBER DASHBOARD ☠</h1>
+<p>ADVANCED SECURITY SIMULATOR</p>
+<p>● SYSTEM ONLINE</p>
+</header>
 
-<div class="box">
-<h1>☠ SECURITY TERMINAL ☠</h1>
-<p>ADVANCED SYSTEM ANALYSIS</p>
-<p>STATUS: ONLINE</p>
+<div class="grid">
 
-<button id="scanBtn" onclick="startScan()">START SCAN</button>
+<div class="card">
+CPU DEMO
+<div class="value" id="cpu">0%</div>
+<div class="bar"><div class="fill" id="cpuBar"></div></div>
+</div>
 
-<div class="bar"><div id="progress"></div></div>
-<h2 id="percent">0%</h2>
-<div id="logs"></div>
-<div id="result"></div>
+<div class="card">
+RAM DEMO
+<div class="value" id="ram">0%</div>
+<div class="bar"><div class="fill" id="ramBar"></div></div>
+</div>
+
+</div>
+
+<div class="card">
+<h3>⌨ TERMINAL</h3>
+<div id="terminal">
+> Dashboard initialized...<br>
+> Waiting for command...
+</div>
+<button onclick="start()">START ANALYSIS</button>
+</div>
+
+<div class="card">
+<h3>🔐 SECURITY STATUS</h3>
+<p id="status">STATUS: IDLE</p>
+<p>Network Demo: ONLINE</p>
+<p>Firewall Demo: ACTIVE</p>
+<p>Analysis: SIMULATION ONLY</p>
 </div>
 
 <script>
-const canvas=document.getElementById("matrix");
-const ctx=canvas.getContext("2d");
-canvas.width=innerWidth;
-canvas.height=innerHeight;
 
-const chars="01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const size=14;
-const drops=Array(Math.floor(canvas.width/size)).fill(1);
+const terminal=document.getElementById("terminal");
 
-function matrix(){
-ctx.fillStyle="rgba(0,0,0,.08)";
-ctx.fillRect(0,0,canvas.width,canvas.height);
-ctx.fillStyle="#00ff66";
-ctx.font=size+"px monospace";
-drops.forEach((y,i)=>{
-ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*size,y*size);
-if(y*size>canvas.height&&Math.random()>.975)drops[i]=0;
-drops[i]++;
-});
+let running=false;
+
+function log(text){
+terminal.innerHTML+="<br>> "+text;
+terminal.scrollTop=terminal.scrollHeight;
 }
-setInterval(matrix,45);
 
-function startScan(){
-const btn=document.getElementById("scanBtn");
-const bar=document.getElementById("progress");
-const percent=document.getElementById("percent");
-const logs=document.getElementById("logs");
-const result=document.getElementById("result");
+function start(){
 
-let p=0;
-let m=0;
+if(running)return;
+running=true;
+
+let count=0;
 
 const messages=[
-"Initializing analysis...",
-"Checking demo security...",
-"Analyzing sample data...",
-"Running simulated firewall test...",
-"Checking demo network...",
-"Finalizing analysis..."
+"Initializing dashboard...",
+"Loading demo modules...",
+"Checking simulated CPU...",
+"Checking simulated memory...",
+"Running sample security checks...",
+"Preparing demo report...",
+"Analysis completed successfully."
 ];
 
-btn.disabled=true;
-btn.innerText="ANALYZING...";
-logs.innerHTML="";
-result.innerHTML="";
+document.getElementById("status").innerText="STATUS: RUNNING";
 
 const timer=setInterval(()=>{
-p++;
-bar.style.width=p+"%";
-percent.innerText=p+"%";
 
-if(p%16===0&&m<messages.length){
-logs.innerHTML+="> "+messages[m]+"<br>";
-m++;
+count++;
+
+let cpu=Math.floor(Math.random()*80)+10;
+let ram=Math.floor(Math.random()*70)+20;
+
+document.getElementById("cpu").innerText=cpu+"%";
+document.getElementById("ram").innerText=ram+"%";
+
+document.getElementById("cpuBar").style.width=cpu+"%";
+document.getElementById("ramBar").style.width=ram+"%";
+
+if(count<=messages.length){
+log(messages[count-1]);
 }
 
-if(p>=100){
+if(count>=messages.length){
+
 clearInterval(timer);
-result.innerHTML=
-"☠ ANALYSIS COMPLETE ☠<br><br>"+
-"System Status: ONLINE<br>"+
-"Demo Checks: COMPLETED<br>"+
-"Report Status: READY";
-btn.disabled=false;
-btn.innerText="RUN AGAIN";
+
+document.getElementById("status").innerText=
+"STATUS: ANALYSIS COMPLETE";
+
+log("Demo report ready.");
+
+running=false;
 }
-},100);
+
+},1200);
+
 }
+
 </script>
+
 </body>
 </html>
