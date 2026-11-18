@@ -3,438 +3,298 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Security Terminal</title>
+<title>System Security</title>
 
 <style>
-* {
-    box-sizing: border-box;
-}
+* { box-sizing:border-box; }
 
 body {
-    margin: 0;
-    background: #020806;
-    color: #00ff66;
-    font-family: monospace;
-    overflow-x: hidden;
+    margin:0;
+    background:#000;
+    color:#00ff41;
+    font-family:monospace;
+    overflow:hidden;
 }
 
-canvas {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-}
-
-.container {
-    max-width: 650px;
-    margin: 30px auto;
-    padding: 20px;
-    border: 1px solid #00ff66;
-    background: rgba(0,10,5,0.94);
-    box-shadow: 0 0 20px #00ff66;
-    border-radius: 10px;
+.screen {
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+    text-align:center;
 }
 
 h1 {
-    text-align: center;
-    text-shadow: 0 0 15px #00ff66;
-}
-
-.subtitle {
-    text-align: center;
-    color: #00cc55;
-}
-
-.status {
-    border: 1px solid #00ff66;
-    padding: 12px;
-    margin: 15px 0;
-    text-align: center;
+    text-shadow:0 0 15px currentColor;
 }
 
 button {
-    display: block;
-    width: 100%;
-    padding: 15px;
-    background: #00ff66;
-    color: black;
-    font-weight: bold;
-    font-size: 17px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    padding:15px 35px;
+    margin:12px;
+    border:0;
+    border-radius:5px;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
 }
 
-button:disabled {
-    opacity: 0.5;
+#allow { background:#00ff41; color:black; }
+#deny { background:#ff2222; color:white; }
+
+#scan, #alert, #reveal {
+    display:none;
 }
 
-.progress-box {
-    margin-top: 20px;
-    border: 1px solid #00ff66;
-    height: 22px;
-}
-
-.progress {
-    height: 100%;
-    width: 0%;
-    background: #00ff66;
-    box-shadow: 0 0 15px #00ff66;
-    transition: width 0.1s;
-}
-
-#percent {
-    text-align: center;
-    margin-top: 8px;
+#scan {
+    background:#001000;
+    align-items:stretch;
 }
 
 .terminal {
-    background: black;
-    border: 1px solid #00ff66;
-    padding: 12px;
-    height: 180px;
-    overflow-y: auto;
-    margin-top: 20px;
-    font-size: 13px;
+    border:1px solid #00ff41;
+    padding:15px;
+    text-align:left;
+    height:230px;
+    overflow:hidden;
+    line-height:1.8;
+    box-shadow:0 0 15px #00ff41;
 }
 
-.metrics {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 20px;
+.bar {
+    width:100%;
+    height:20px;
+    border:1px solid #00ff41;
+    margin-top:25px;
 }
 
-.metric {
-    border: 1px solid #00ff66;
-    padding: 15px;
-    width: 50%;
-    text-align: center;
+#progress {
+    height:100%;
+    width:0%;
+    background:#00ff41;
 }
 
-.metric span {
-    font-size: 22px;
+#alert {
+    background:#250000;
+    color:red;
+    animation:flash .25s infinite;
 }
 
-#result {
-    display: none;
-    text-align: center;
-    margin-top: 25px;
-    padding: 20px;
-    border: 2px solid #00ff66;
+@keyframes flash {
+    0%,100% { background:#250000; }
+    50% { background:#800000; }
 }
 
-.alert {
-    animation: redFlash 0.3s infinite;
+.warning {
+    font-size:clamp(30px,8vw,55px);
+    font-weight:bold;
+    text-shadow:0 0 20px red;
 }
 
-@keyframes redFlash {
-    0%,100% {
-        background: #020806;
-    }
-    50% {
-        background: #650000;
-    }
+.sub {
+    font-size:19px;
+    line-height:2;
 }
 
-#alertText {
-    display: none;
-    color: red;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-    text-shadow: 0 0 15px red;
+#reveal {
+    background:#000;
+    color:#00ff41;
 }
-
 </style>
 </head>
 
 <body>
 
-<canvas id="matrix"></canvas>
+<!-- PERMISSION SCREEN -->
 
-<div class="container">
+<section id="permission" class="screen">
 
-<h1>☠ SECURITY TERMINAL ☠</h1>
+<h1>🔐 SECURITY VERIFICATION</h1>
 
-<p class="subtitle">ADVANCED SYSTEM ANALYSIS</p>
+<p>Permission required to continue</p>
 
-<div class="status" id="status">
-STATUS: ONLINE
-</div>
+<p>Allow or deny to proceed</p>
 
-<p id="alertText">⚠ CRITICAL SECURITY ALERT ⚠</p>
+<button id="allow" onclick="start()">ALLOW</button>
 
-<button id="startBtn" onclick="startScan()">
-START SCAN
-</button>
+<button id="deny" onclick="start()">DENY</button>
 
-<div class="progress-box">
-<div class="progress" id="progress"></div>
-</div>
+</section>
 
-<div id="percent">0%</div>
 
-<div class="metrics">
+<!-- GREEN HACKER SCREEN -->
 
-<div class="metric">
-CPU USAGE<br>
-<span id="cpu">12%</span>
-</div>
+<section id="scan" class="screen">
 
-<div class="metric">
-RAM USAGE<br>
-<span id="ram">35%</span>
-</div>
-
-</div>
+<h1>⚡ SYSTEM ANALYSIS ⚡</h1>
 
 <div class="terminal" id="terminal">
-> Security Terminal Initialized...<br>
-> System Status: ONLINE<br>
-> Waiting for scan command...
+> Initializing system...<br>
+> Security module loaded...
 </div>
 
-<div id="result">
+<div class="bar">
+<div id="progress"></div>
+</div>
 
-<h2>☠ ANALYSIS COMPLETE ☠</h2>
+<p id="percent">0%</p>
 
-<p>System Status: ONLINE</p>
-<p>Demo Checks: COMPLETED</p>
-<p>Report Status: READY</p>
+</section>
 
-<h3 style="color:#00ff66">
-SYSTEM SECURE
-</h3>
+
+<!-- RED ALERT SCREEN -->
+
+<section id="alert" class="screen">
+
+<h1>🚨 CRITICAL WARNING 🚨</h1>
+
+<div class="warning">
+YOUR DEVICE<br>
+IS HACKED!
+</div>
+
+<div class="sub">
+
+⚠ SYSTEM COMPROMISED ⚠<br>
+
+WHATSAPP ACCESS — SIMULATED<br>
+
+INSTAGRAM ACCESS — SIMULATED<br>
+
+SECURITY BREACH DETECTED
 
 </div>
 
-</div>
+</section>
+
+
+<!-- FINAL REVEAL (OPTIONAL) -->
+
+<section id="reveal" class="screen">
+
+<h1>😂 JUST A PRANK!</h1>
+
+<h2>Your device is completely safe!</h2>
+
+<p>This was only a visual security demo.</p>
+
+</section>
+
 
 <script>
 
-// MATRIX BACKGROUND
+let audio;
 
-const canvas = document.getElementById("matrix");
-const ctx = canvas.getContext("2d");
+function start() {
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+    document.getElementById("permission").style.display="none";
 
-const letters = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const fontSize = 14;
+    document.getElementById("scan").style.display="flex";
 
-let drops = [];
+    const terminal=document.getElementById("terminal");
 
-for(let x = 0; x < canvas.width/fontSize; x++) {
-    drops[x] = 1;
-}
+    const messages=[
+        "> Connecting to security simulation...",
+        "> WhatsApp call access: SIMULATING...",
+        "> Instagram call access: SIMULATING...",
+        "> Checking security status...",
+        "> Processing simulated results...",
+        "> Analysis complete..."
+    ];
 
-function drawMatrix() {
+    let i=0;
+    let progress=0;
 
-    ctx.fillStyle = "rgba(0,0,0,0.08)";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+    const interval=setInterval(()=>{
 
-    ctx.fillStyle = "#00ff66";
-    ctx.font = fontSize + "px monospace";
+        progress+=5;
 
-    for(let i=0; i<drops.length; i++) {
-
-        let text = letters.charAt(
-            Math.floor(Math.random()*letters.length)
-        );
-
-        ctx.fillText(text,i*fontSize,drops[i]*fontSize);
-
-        if(drops[i]*fontSize > canvas.height &&
-           Math.random() > 0.975) {
-            drops[i] = 0;
-        }
-
-        drops[i]++;
-    }
-}
-
-setInterval(drawMatrix,35);
-
-
-// CPU RAM ANIMATION
-
-setInterval(() => {
-
-    document.getElementById("cpu").innerText =
-        Math.floor(Math.random()*70+10)+"%";
-
-    document.getElementById("ram").innerText =
-        Math.floor(Math.random()*60+25)+"%";
-
-},500);
-
-
-// TERMINAL MESSAGES
-
-const messages = [
-"> Initializing security protocols...",
-"> Checking system status...",
-"> Running simulated security checks...",
-"> Analyzing network status...",
-"> Checking firewall status...",
-"> Verifying security parameters...",
-"> Processing system report...",
-"> Analysis completed..."
-];
-
-let audioCtx;
-
-function playSiren() {
-
-    try {
-
-        audioCtx = new (
-            window.AudioContext ||
-            window.webkitAudioContext
-        )();
-
-        const oscillator = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-
-        oscillator.type = "sawtooth";
-        oscillator.frequency.value = 700;
-
-        gain.gain.value = 0.04;
-
-        oscillator.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        oscillator.start();
-
-        let high = true;
-
-        const siren = setInterval(() => {
-
-            oscillator.frequency.setValueAtTime(
-                high ? 950 : 650,
-                audioCtx.currentTime
-            );
-
-            high = !high;
-
-        },250);
-
-        setTimeout(() => {
-
-            clearInterval(siren);
-            oscillator.stop();
-            audioCtx.close();
-
-        },1800);
-
-    } catch(e) {
-        console.log("Audio unavailable");
-    }
-}
-
-
-// START SCAN
-
-function startScan() {
-
-    const btn = document.getElementById("startBtn");
-
-    btn.disabled = true;
-
-    document.getElementById("status").innerText =
-        "STATUS: SCANNING";
-
-    let progress = 0;
-
-    const terminal = document.getElementById("terminal");
-
-    let messageIndex = 0;
-
-    const scan = setInterval(() => {
-
-        progress += 5;
-
-        if(progress > 100) progress = 100;
-
-        document.getElementById("progress").style.width =
+        document.getElementById("progress").style.width=
             progress+"%";
 
-        document.getElementById("percent").innerText =
+        document.getElementById("percent").innerText=
             progress+"%";
 
-        if(messageIndex < messages.length) {
+        if(i<messages.length){
+            terminal.innerHTML+=
+                "<br>"+messages[i];
 
-            terminal.innerHTML +=
-                "<br>"+messages[messageIndex];
-
-            terminal.scrollTop = terminal.scrollHeight;
-
-            messageIndex++;
-
+            terminal.scrollTop=terminal.scrollHeight;
+            i++;
         }
 
-        if(progress >= 100) {
-
-            clearInterval(scan);
-
+        if(progress>=100){
+            clearInterval(interval);
             showAlert();
-
         }
 
-    },100);
+    },20);
 
 }
 
+function showAlert(){
 
-// RED ALERT
+    document.getElementById("scan").style.display="none";
 
-function showAlert() {
-
-    document.body.classList.add("alert");
-
-    document.getElementById("alertText").style.display =
-        "block";
-
-    document.getElementById("status").innerText =
-        "STATUS: CRITICAL ALERT";
+    document.getElementById("alert").style.display="flex";
 
     playSiren();
 
-    setTimeout(() => {
+}
 
-        document.body.classList.remove("alert");
+function playSiren(){
 
-        document.getElementById("alertText").style.display =
-            "none";
+    try {
 
-        document.getElementById("status").innerText =
-            "STATUS: ANALYSIS COMPLETE";
+        audio=new (window.AudioContext ||
+            window.webkitAudioContext)();
 
-        document.getElementById("result").style.display =
-            "block";
+        const oscillator=audio.createOscillator();
+        const gain=audio.createGain();
 
-        document.getElementById("terminal").innerHTML +=
-            "<br>> ANALYSIS COMPLETE";
+        oscillator.type="sawtooth";
+        gain.gain.value=0.06;
 
-    },2000);
+        oscillator.connect(gain);
+        gain.connect(audio.destination);
+
+        oscillator.start();
+
+        let toggle=false;
+
+        const siren=setInterval(()=>{
+
+            oscillator.frequency.value=
+                toggle?900:600;
+
+            toggle=!toggle;
+
+        },250);
+
+        setTimeout(()=>{
+
+            clearInterval(siren);
+            oscillator.stop();
+            audio.close();
+
+        },10000);
+
+    } catch(e) {}
 
 }
 
-window.addEventListener("resize", () => {
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+// Reveal manually when you decide.
+// Run revealPrank() from browser console.
 
-    drops = [];
+function revealPrank(){
 
-    for(let x = 0; x < canvas.width/fontSize; x++) {
-        drops[x] = 1;
-    }
+    document.getElementById("alert").style.display="none";
 
-});
+    document.getElementById("reveal").style.display="flex";
+
+}
 
 </script>
 
