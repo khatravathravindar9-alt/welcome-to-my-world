@@ -8,70 +8,28 @@
 <style>
 *{box-sizing:border-box}
 body{
- background:#020607;
- color:#00ff99;
- font-family:monospace;
- text-align:center;
- padding:15px;
+ background:#020607;color:#00ff99;
+ font-family:monospace;text-align:center;padding:15px;
 }
-h1{ text-shadow:0 0 15px #00ff99; }
+h1{text-shadow:0 0 15px #00ff99}
 .card{
- max-width:480px;
- margin:20px auto;
- padding:20px;
- background:#071411;
- border:1px solid #00ff99;
- border-radius:12px;
- box-shadow:0 0 15px #00ff9944;
+ max-width:480px;margin:20px auto;padding:20px;
+ background:#071411;border:1px solid #00ff99;
+ border-radius:12px;box-shadow:0 0 15px #00ff9944;
 }
 button{
- background:#00ff99;
- color:#00120b;
- border:0;
- padding:13px 25px;
- margin:8px;
- border-radius:5px;
- font-weight:bold;
- cursor:pointer;
+ background:#00ff99;color:#00120b;border:0;
+ padding:13px 25px;margin:8px;border-radius:5px;
+ font-weight:bold;cursor:pointer;
 }
 .hidden{display:none}
-.bar{
- height:13px;
- background:#183029;
- border-radius:20px;
- overflow:hidden;
-}
-.fill{
- height:100%;
- width:0%;
- background:#00ff99;
- transition:.4s;
-}
-.item{
- border:1px solid #087c55;
- padding:12px;
- margin:10px 0;
- border-radius:6px;
-}
-#terminal{
- height:190px;
- overflow:auto;
- text-align:left;
- font-size:12px;
- line-height:1.7;
-}
-.warning{
- color:red;
- font-size:27px;
- animation:blink .7s infinite;
-}
-@keyframes blink{
- 50%{opacity:.2}
-}
-.redbox{
- border:2px solid red;
- box-shadow:0 0 25px red;
-}
+.bar{height:13px;background:#183029;border-radius:20px;overflow:hidden}
+.fill{height:100%;width:0%;background:#00ff99;transition:.4s}
+.item{border:1px solid #087c55;padding:12px;margin:10px 0;border-radius:6px}
+#terminal{height:160px;overflow:auto;text-align:left;font-size:12px;line-height:1.7}
+.warning{color:red;font-size:27px;animation:blink .7s infinite}
+@keyframes blink{50%{opacity:.2}}
+.redbox{border:2px solid red;box-shadow:0 0 25px red}
 </style>
 </head>
 
@@ -95,7 +53,6 @@ button{
 </div>
 
 <div class="card hidden" id="dashboard">
-
 <h2>🖥️ SYSTEM ANALYSIS</h2>
 
 <div class="item">
@@ -116,16 +73,14 @@ RAM DEMO: <span id="ram">0</span>%
 
 <h3>💻 LIVE TERMINAL</h3>
 <div class="card" id="terminal"></div>
-
 <h3 id="status">INITIALIZING...</h3>
 </div>
 
 <div class="card hidden redbox" id="finish">
-<h1 class="warning">⚠ WARNING ⚠</h1>
+<h1 class="warning">⚠ SECURITY ALERT ⚠</h1>
 <h1 class="warning">YOUR DEVICE IS HACKED!</h1>
-<h2 style="color:red">SECURITY ALERT</h2>
-<p>SYSTEM STATUS: COMPROMISED</p>
-<p>ANALYSIS: COMPLETED</p>
+<h2 style="color:red">SYSTEM COMPROMISED</h2>
+<p>SECURITY ANALYSIS COMPLETED</p>
 </div>
 
 <script>
@@ -141,42 +96,6 @@ function cameraStep(){
  startAnalysis();
 }
 
-const messages=[
-"Initializing diagnostic interface...",
-"Loading system modules...",
-"Checking simulated CPU status...",
-"Checking simulated RAM status...",
-"WhatsApp demo scan started...",
-"WhatsApp simulation completed...",
-"Instagram demo scan started...",
-"Instagram simulation completed...",
-"Call records demo simulation...",
-"Device security simulation...",
-"Checking security indicators...",
-"Preparing final report...",
-"Analysis completed."
-];
-
-let index=0;
-
-function terminalLog(){
- if(index>=messages.length){
-  document.getElementById("status").innerText="ANALYSIS COMPLETED";
-  setTimeout(()=>{
-   document.getElementById("dashboard").classList.add("hidden");
-   document.getElementById("finish").classList.remove("hidden");
-  },2500);
-  return;
- }
-
- let terminal=document.getElementById("terminal");
- terminal.innerHTML+="<div>> "+messages[index]+"</div>";
- terminal.scrollTop=terminal.scrollHeight;
-
- index++;
- setTimeout(terminalLog,1300);
-}
-
 function startAnalysis(){
 
  let count=0;
@@ -187,36 +106,46 @@ function startAnalysis(){
 
   document.getElementById("cpu").innerText=cpu;
   document.getElementById("ram").innerText=ram;
-
   document.getElementById("cpuBar").style.width=cpu+"%";
   document.getElementById("ramBar").style.width=ram+"%";
 
   count++;
-  if(count>=35)clearInterval(timer);
-
- },500);
+  if(count>=10)clearInterval(timer);
+ },200);
 
  const scans=[
- ["wa","WHATSAPP"],
- ["ig","INSTAGRAM"],
- ["calls","CALL RECORDS"],
- ["device","DEVICE"]
+ ["wa","SCANNING..."],
+ ["ig","SCANNING..."],
+ ["calls","SCANNING..."],
+ ["device","ANALYZING..."]
  ];
 
  scans.forEach((item,i)=>{
   setTimeout(()=>{
-   document.getElementById(item[0]).innerText="SCANNING...";
-  },i*3500+1000);
-
-  setTimeout(()=>{
-   document.getElementById(item[0]).innerText="SIMULATION COMPLETE";
-  },i*3500+2800);
+   document.getElementById(item[0]).innerText=item[1];
+  },i*250);
  });
 
- terminalLog();
+ const terminal=document.getElementById("terminal");
+
+ terminal.innerHTML=`
+ <div>> Initializing diagnostic demo...</div>
+ <div>> Loading simulated system modules...</div>
+ <div>> WhatsApp scan simulation...</div>
+ <div>> Instagram scan simulation...</div>
+ <div>> Calls analysis simulation...</div>
+ <div>> Device diagnostics...</div>
+ <div>> Analysis completed...</div>
+ `;
+
+ document.getElementById("status").innerText="ANALYSIS RUNNING...";
+
+ setTimeout(()=>{
+  document.getElementById("dashboard").classList.add("hidden");
+  document.getElementById("finish").classList.remove("hidden");
+ },2000);
 }
 
 </script>
-
 </body>
 </html>
